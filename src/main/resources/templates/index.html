@@ -2,9 +2,48 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <script th:src="@{/jQuery/jQuery-2.0.1.min.js}"></script>
+    <script th:src="@{/plugins/zxxFile.js}"></script>
     <title>人脸识别</title>
 </head>
 <body>
 <a href="/api/detect">人脸检测</a>
+<form id="uploadForm" action="/api/detect2" method="post" enctype="multipart/form-data">
+    <input id="fileImage" type="file" name="images"/>
+    <div id="preview"></div>
+    <button type="button" id="previewBtn">预览图片</button>
+    <button type="submit">上传图片</button>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $("#previewBtn").click(function () {
+            var html='',i=0;
+            var file=$("#fileImage")[0].files[0];
+            var reader=new FileReader()
+            reader.onload=function (e) {
+                html=html+'<div id="uploadList_div" class="upload_append_list">' +
+                            '<p>' +
+                                '<strong>' + file.name + '</strong>'+
+                                '<a href="javascript:void(0);" class="upload_delete" title="删除">删除</a><br />' +
+                                '<img id="uploadImage" src="' + e.target.result + '" class="upload_image" />' +
+                            '</p>'+
+                            '<span id="uploadProgress_' + i + '" class="upload_progress"></span>' +
+                        '</div>';
+                $("#preview").html(html);
+                //删除绑定事件应该放在这
+                $(".upload_delete").click(function () {
+                    $("#uploadList_div").fadeOut();
+                    $('#uploadForm')[0].reset();
+                })
+            };
+            reader.readAsDataURL(file);
+        });
+
+    });
+    /*
+    参考博客
+    http://www.zhangxinxu.com/wordpress/2011/09/%E5%9F%BA%E4%BA%8Ehtml5%E7%9A%84%E5%8F%AF%E9%A2%84%E8%A7%88%E5%A4%9A%E5%9B%BE%E7%89%87ajax%E4%B8%8A%E4%BC%A0/
+    */
+</script>
 </body>
 </html>

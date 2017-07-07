@@ -6,6 +6,7 @@ import com.hxt.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.net.URLEncoder;
 
 /**
@@ -31,6 +32,31 @@ public class DetectService {
         String filePath = "C:\\Users\\Tao\\Pictures\\8c508b22720e0cf39d26bb0a0246f21fbf09aa74.jpg";
         try {
             byte[] imgData = FileUtil.readFileByBytes(filePath);
+            String imgStr = Base64Util.encode(imgData);
+            System.out.println("imgStr:" + imgStr);
+            // face_fields 自定之指定返回的人脸特征值
+            String params =
+                    "max_face_num=5&face_fields=age,beauty,expression,faceshape,gender,glasses,landmark,race,qualities&"
+                            + URLEncoder.encode("image", "UTF-8") + "=" + URLEncoder.encode(imgStr, "UTF-8");
+            /**
+             * 线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+             */
+            String accessToken = authService.getAuth();
+            String result = HttpUtil.post(detectUrl, accessToken, params);
+            System.out.println(result);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getDetectResult(File file){
+        // 人脸检测 url
+        String detectUrl = "https://aip.baidubce.com/rest/2.0/face/v1/detect";
+
+        try {
+            byte[] imgData = FileUtil.readFileByBytes(file);
             String imgStr = Base64Util.encode(imgData);
             System.out.println("imgStr:" + imgStr);
             // face_fields 自定之指定返回的人脸特征值
