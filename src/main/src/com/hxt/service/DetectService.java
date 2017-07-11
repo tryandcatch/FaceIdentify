@@ -5,6 +5,7 @@ import com.hxt.utils.FileUtil;
 import com.hxt.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -29,9 +30,10 @@ public class DetectService {
         // 人脸检测 url
         String detectUrl = "https://aip.baidubce.com/rest/2.0/face/v1/detect";
         // 本地文件路径
-        String filePath = "C:\\Users\\Tao\\Pictures\\8c508b22720e0cf39d26bb0a0246f21fbf09aa74.jpg";
+//        String filePath = "xqfz.jpg";
         try {
-            byte[] imgData = FileUtil.readFileByBytes(filePath);
+            File jpgFile=ResourceUtils.getFile("classpath:xqfz.jpg");
+            byte[] imgData = FileUtil.readFileByBytes(jpgFile.getAbsolutePath());
             String imgStr = Base64Util.encode(imgData);
             System.out.println("imgStr:" + imgStr);
             // face_fields 自定之指定返回的人脸特征值

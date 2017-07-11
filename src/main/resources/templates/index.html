@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8"/>
     <script th:src="@{/jQuery/jQuery-2.0.1.min.js}"></script>
-    <script th:src="@{/plugins/zxxFile.js}"></script>
     <title>人脸识别</title>
 </head>
 <body>
 <a href="/api/detect">人脸检测</a>
-<form id="uploadForm" action="/api/detect2" method="post" enctype="multipart/form-data">
+<hr/>
+<form id="uploadForm" action="/api/detect3" method="post" enctype="multipart/form-data">
     <input id="fileImage" type="file" name="images"/>
     <div id="preview"></div>
     <button type="button" id="previewBtn">预览图片</button>
