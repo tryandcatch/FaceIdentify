@@ -19,9 +19,9 @@ public class AuthService {
         // 获取token地址
         String authHost = "https://aip.baidubce.com/oauth/2.0/token?";
         // 官网获取的 API Key 更新为你注册的
-        String clientId = "sPDHOg4QB820GMnjLnKkYoTR";
+        String clientId = "百度账号的API Key ";
         // 官网获取的 Secret Key 更新为你注册的
-        String clientSecret = "PTka09WfQodoMEORrObGx1xVp4qaEnOp";
+        String clientSecret = "百度账号的Secret Key";
         String getAccessTokenUrl = authHost
                 // 1. grant_type为固定参数
                 + "grant_type=client_credentials"
