@@ -7,12 +7,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -37,7 +40,8 @@ public class ApiController {
         return result;
     }
 
-    @RequestMapping("/detect2")
+    //上传图片到服务器返回人脸检测的json
+    @RequestMapping(value = "/detect2")
     @ResponseBody
     public String detect2(@RequestParam("images") MultipartFile images){
         System.out.println("上传图片名："+images.getName());
@@ -53,8 +57,44 @@ public class ApiController {
             images.transferTo(imageFile);
             jsonObject = new JSONObject(detectService.getDetectResult(imageFile));
             System.out.println(jsonObject);
+            return String.valueOf(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //返回人脸检测标记后的图像
+    @RequestMapping(value = "/detect3")
+    public void detect3(@RequestParam("images") MultipartFile images, Model model, HttpServletRequest req, HttpServletResponse resp){
+        System.out.println("上传图片名："+images.getName());
+        System.out.println("上传图片名OriginalFilename："+images.getOriginalFilename());
+        InputStream is=null;
+        try {
+            BufferedImage image=solve(images,false);
+            resp.setContentType("image/png");
+            OutputStream os = resp.getOutputStream();
+            ImageIO.write(image, "png", os);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private BufferedImage solve(MultipartFile images,boolean isGenerateDetectedImage){
+        BufferedImage image;
+        JSONObject jsonObject;
+        try {
+            File imegeFilePath=new File("D://FaceIdentify//");
+            if(!imegeFilePath.exists()){
+                imegeFilePath.mkdirs();
+            }
+            File imageFile=new File(imegeFilePath,images.getOriginalFilename());
+            imageFile.createNewFile();
+            images.transferTo(imageFile);
+            jsonObject = new JSONObject(detectService.getDetectResult(imageFile));
+            System.out.println(jsonObject);
             Integer result_num= (Integer) jsonObject.get("result_num");//人脸数量
-            BufferedImage image= ImageIO.read(imageFile);
+            image= ImageIO.read(imageFile);
             if(result_num>0){
                 JSONArray jsonArray=((JSONArray)jsonObject.get("result"));
                 for(int i=0;i<jsonArray.length();i++){
@@ -77,23 +117,18 @@ public class ApiController {
                     graphics2D.setTransform(transform);
                     graphics2D.draw(rectangle2D);
                     //输出图像
-                    //ImageIO.write(image,"PNG",new File(imegeFilePath,"FaceIdentify"+"_"+i+""+images.getOriginalFilename()));//这里会为每一张脸输出一张图，不合适。。
+                    if(isGenerateDetectedImage)
+                    ImageIO.write(image,"PNG",new File(imegeFilePath,"FaceIdentify"+"_"+i+""+images.getOriginalFilename()));//这里会为每一张脸输出一张图，不合适。。
 
-                    /*OutputStream outImage = new FileOutputStream("FaceIdentify"+"_"+images.getOriginalFilename());
-                    JPEGImageEncoder enc = JPEGCodec.createJPEGEncoder(outImage);
-                    enc.encode(image);
-                    outImage.close();*/
                     //释放画笔
                     graphics2D.dispose();
                 }
-                ImageIO.write(image,"PNG",new File(imegeFilePath,"FaceIdentify"+"_"+images.getOriginalFilename()));
             }
-
-
-            return String.valueOf(jsonObject);
+            return image;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
 }
